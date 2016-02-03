@@ -1,0 +1,79 @@
+cmake_minimum_required (VERSION 2.8)
+project(assignment4 C)
+
+# set the directory where we want the final executables to be placed
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+# This will add arguments not found in ${parameter} to the end.
+# It does not attempt to remove duplicate arguments already existing in ${parameter}.
+# Taken from the CMake Wiki (http://www.cmake.org/Wiki/CMakeMacroForceAddFlags)
+macro(add_flags parameter)
+	# Create a separated list of the arguments to loop over
+	set(p_list ${${parameter}})
+	separate_arguments(p_list)
+
+	# Make a copy of the current arguments in ${parameter}
+	set(new_parameter ${${parameter}})
+
+	# Now loop over each required argument and see if it is in our
+	# current list of arguments.
+	foreach(required_arg ${ARGN})
+		# This helps when we get arguments to the function that are
+		# grouped as a string:
+		#
+		# ["-O3 -g"]  instead of [-O3 -g]
+		set(TMP ${required_arg}) #elsewise the Seperate command doesn't work)
+		separate_arguments(TMP)
+
+		foreach(option ${TMP})
+			# Look for the required argument in our list of existing arguments
+			set(found FALSE)
+			foreach(p_arg ${p_list})
+				if (${p_arg} STREQUAL ${option})
+				set(found TRUE)
+				endif (${p_arg} STREQUAL ${option})
+			endforeach(p_arg)
+			
+			if(NOT found)
+				# The required argument wasn't found, so we need to add it in.
+				set(new_parameter "${new_parameter} ${option}")
+			endif(NOT found)
+		endforeach(option ${TMP})
+	endforeach(required_arg ${ARGN})
+	set(${parameter} ${new_parameter} CACHE STRING "" FORCE)
+endmacro(add_flags)
+
+# compiler flags we wish to add
+add_flags(CMAKE_C_FLAGS -O2)
+add_flags(CMAKE_C_FLAGS -fmessage-length=0)
+add_flags(CMAKE_C_FLAGS -pedantic-errors)
+add_flags(CMAKE_C_FLAGS -std=gnu99)
+add_flags(CMAKE_C_FLAGS -Werror)
+add_flags(CMAKE_C_FLAGS -Wall)
+add_flags(CMAKE_C_FLAGS -Wextra)
+add_flags(CMAKE_C_FLAGS -Wwrite-strings)
+add_flags(CMAKE_C_FLAGS -Winit-self)
+add_flags(CMAKE_C_FLAGS -Wcast-align)
+add_flags(CMAKE_C_FLAGS -Wcast-qual)
+add_flags(CMAKE_C_FLAGS -Wpointer-arith)
+add_flags(CMAKE_C_FLAGS -Wstrict-aliasing)
+add_flags(CMAKE_C_FLAGS -Wformat=2)
+add_flags(CMAKE_C_FLAGS -Wmissing-include-dirs)
+add_flags(CMAKE_C_FLAGS -Wno-unused-parameter)
+add_flags(CMAKE_C_FLAGS -Wshadow)
+add_flags(CMAKE_C_FLAGS -Wuninitialized)
+add_flags(CMAKE_C_FLAGS -Wold-style-definition)
+
+# find any needed libraries	
+find_package(Threads REQUIRED)
+
+# add the first problem and specify what libraries we need to link
+add_executable(problem_1 problem_1.c)
+target_link_libraries (problem_1 ${CMAKE_THREAD_LIBS_INIT})
+
+# add the second problem and specify what libraries we need to link
+add_executable(problem_2 problem_2.c)
+
+# add the third problem and specify what libraries we need to link
+add_executable(problem_3 problem_3.c )
+target_link_libraries (problem_3 ${CMAKE_THREAD_LIBS_INIT})
